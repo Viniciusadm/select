@@ -23,7 +23,7 @@ export interface Snapshot {
   disabled: boolean;
 }
 
-export interface SelectPickerOptions {
+export interface MinSelectOptions {
   liveSearchNormalize?: boolean;
   virtualizeThreshold?: number;
   portal?: boolean;
@@ -47,4 +47,8 @@ export interface ChangedDetail {
   clickedIndex: number;
   isSelected: boolean;
   previousValue: string | string[];
+}
+
+export interface AppliedDetail {
+  value: string | string[];
 }

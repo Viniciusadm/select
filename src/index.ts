@@ -1,6 +1,6 @@
-export { SelectPicker } from "./SelectPicker.js";
+export { MinSelect } from "./MinSelect.js";
 export type {
-  SelectPickerOptions,
+  MinSelectOptions,
   ChangedDetail,
   Snapshot,
   OptionSnap,

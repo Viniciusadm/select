@@ -1,12 +1,12 @@
 import type {
   ResolvedOptions,
-  SelectPickerOptions,
+  MinSelectOptions,
   Snapshot,
   OptionSnap,
   ChangedDetail,
 } from "./types.js";
 import { readSnapshot, selectedValues, snapshotEquals } from "./snapshot.js";
-import { dispatch, dispatchChanged, dispatchNativeChange } from "./events.js";
+import { dispatch, dispatchApplied, dispatchChanged, dispatchNativeChange } from "./events.js";
 import { makeMatcher, stripDiacritics } from "./normalize.js";
 import {
   CLS,
@@ -20,8 +20,8 @@ import {
 } from "./view.js";
 import { register, unregister, ownerId as makeOwnerId } from "./globals.js";
 
-const REGISTRY = new WeakMap<HTMLSelectElement, SelectPicker>();
-const FORM_REFS = new WeakMap<HTMLFormElement, { count: number; handler: () => void; instances: Set<SelectPicker> }>();
+const REGISTRY = new WeakMap<HTMLSelectElement, MinSelect>();
+const FORM_REFS = new WeakMap<HTMLFormElement, { count: number; handler: () => void; instances: Set<MinSelect> }>();
 
 const DEFAULTS: ResolvedOptions = {
   liveSearchNormalize: true,
@@ -58,11 +58,11 @@ function readDataConfig(select: HTMLSelectElement): DataConfig {
   };
 }
 
-export class SelectPicker {
+export class MinSelect {
   static init(
     target: string | Element | NodeListOf<Element> | Element[],
-    options?: SelectPickerOptions,
-  ): SelectPicker[] {
+    options?: MinSelectOptions,
+  ): MinSelect[] {
     let els: Element[];
     if (typeof target === "string") {
       els = Array.from(document.querySelectorAll(target));
@@ -71,7 +71,7 @@ export class SelectPicker {
     } else {
       els = Array.from(target as ArrayLike<Element>);
     }
-    const out: SelectPicker[] = [];
+    const out: MinSelect[] = [];
     for (const el of els) {
       if (!(el instanceof HTMLSelectElement)) continue;
       const existing = REGISTRY.get(el);
@@ -79,13 +79,13 @@ export class SelectPicker {
         existing.refresh();
         out.push(existing);
       } else {
-        out.push(new SelectPicker(el, options));
+        out.push(new MinSelect(el, options));
       }
     }
     return out;
   }
 
-  static get(el: HTMLSelectElement): SelectPicker | undefined {
+  static get(el: HTMLSelectElement): MinSelect | undefined {
     return REGISTRY.get(el);
   }
 
@@ -116,9 +116,9 @@ export class SelectPicker {
   private actionsClickHandler: ((e: MouseEvent) => void) | null = null;
   private scrollHandler: (() => void) | null = null;
 
-  constructor(el: HTMLSelectElement, options?: SelectPickerOptions) {
+  constructor(el: HTMLSelectElement, options?: MinSelectOptions) {
     if (REGISTRY.has(el)) {
-      throw new Error("SelectPicker: element already initialized");
+      throw new Error("MinSelect: element already initialized");
     }
     this.select = el;
     this.opts = { ...DEFAULTS, ...(options || {}) };
@@ -245,8 +245,15 @@ export class SelectPicker {
       const btn = (e.target as HTMLElement).closest(`.${CLS.actionsBtn}`) as HTMLButtonElement | null;
       if (!btn) return;
       e.preventDefault();
-      if (btn.dataset["action"] === "select-all") this.selectAll();
-      else if (btn.dataset["action"] === "deselect-all") this.deselectAll();
+      const action = btn.dataset["action"];
+      if (action === "apply") {
+        const value = this.snap.multiple ? selectedValues(this.snap) : this.select.value;
+        dispatchApplied(this.select, { value });
+        this.hide();
+        return;
+      }
+      if (action === "select-all") this.selectAll();
+      else if (action === "deselect-all") this.deselectAll();
       const input = this.built.searchInput;
       if (input) input.focus();
     };
@@ -282,7 +289,7 @@ export class SelectPicker {
     this.form = form;
     let ref = FORM_REFS.get(form);
     if (!ref) {
-      const instances = new Set<SelectPicker>();
+      const instances = new Set<MinSelect>();
       const handler = () => {
         // After reset, native select state has been restored; re-render all instances.
         // Use microtask: at the time `reset` fires synchronously, .selected may not be fully reset yet

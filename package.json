@@ -1,6 +1,6 @@
 {
-  "name": "select",
-  "version": "1.0.0",
+  "name": "min-select",
+  "version": "1.0.1",
   "description": "Custom <select> UI layer — vanilla TS, no dependencies",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

@@ -1,4 +1,4 @@
-import type { ChangedDetail } from "./types.js";
+import type { AppliedDetail, ChangedDetail } from "./types.js";
 
 export type EventName =
   | "loaded.sl.select"
@@ -8,7 +8,8 @@ export type EventName =
   | "shown.sl.select"
   | "hide.sl.select"
   | "hidden.sl.select"
-  | "changed.sl.select";
+  | "changed.sl.select"
+  | "applied.sl.select";
 
 export function dispatch(
   target: HTMLElement,
@@ -22,6 +23,10 @@ export function dispatch(
 
 export function dispatchChanged(target: HTMLElement, detail: ChangedDetail): void {
   dispatch(target, "changed.sl.select", detail, false);
+}
+
+export function dispatchApplied(target: HTMLElement, detail: AppliedDetail): void {
+  dispatch(target, "applied.sl.select", detail, false);
 }
 
 export function dispatchNativeChange(select: HTMLSelectElement): void {

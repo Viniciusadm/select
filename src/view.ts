@@ -15,11 +15,15 @@ export const CLS = {
   searchInput: "sl-search-input",
   actions: "sl-actions",
   actionsBtn: "sl-actions-btn",
+  selectAllBtn: "sl-select-all-btn",
+  deselectAllBtn: "sl-deselect-all-btn",
+  applyBtn: "sl-apply-btn",
   list: "sl-list",
   group: "sl-group",
   groupLabel: "sl-group-label",
   groupList: "sl-group-list",
   item: "sl-item",
+  itemLabel: "sl-item-label",
   itemActive: "sl-item-active",
   itemSelected: "sl-item-selected",
   itemDisabled: "sl-item-disabled",
@@ -45,6 +49,7 @@ export interface BuiltRoot {
   actionsWrap: HTMLDivElement | null;
   selectAllBtn: HTMLButtonElement | null;
   deselectAllBtn: HTMLButtonElement | null;
+  applyBtn: HTMLButtonElement | null;
   list: HTMLDivElement;
   empty: HTMLDivElement;
   triggerId: string;
@@ -118,21 +123,33 @@ export function buildRoot(cfg: BuildConfig): BuiltRoot {
   let actionsWrap: HTMLDivElement | null = null;
   let selectAllBtn: HTMLButtonElement | null = null;
   let deselectAllBtn: HTMLButtonElement | null = null;
-  if (cfg.actionsBox && cfg.multiple) {
+  let applyBtn: HTMLButtonElement | null = null;
+  if (cfg.actionsBox) {
     actionsWrap = document.createElement("div");
     actionsWrap.className = CLS.actions;
-    selectAllBtn = document.createElement("button");
-    selectAllBtn.type = "button";
-    selectAllBtn.className = CLS.actionsBtn;
-    selectAllBtn.dataset["action"] = "select-all";
-    selectAllBtn.textContent = "Selecionar todos";
-    deselectAllBtn = document.createElement("button");
-    deselectAllBtn.type = "button";
-    deselectAllBtn.className = CLS.actionsBtn;
-    deselectAllBtn.dataset["action"] = "deselect-all";
-    deselectAllBtn.textContent = "Limpar";
-    actionsWrap.appendChild(selectAllBtn);
-    actionsWrap.appendChild(deselectAllBtn);
+    if (cfg.multiple) {
+      selectAllBtn = document.createElement("button");
+      selectAllBtn.type = "button";
+      selectAllBtn.className = CLS.actionsBtn;
+      selectAllBtn.classList.add(CLS.selectAllBtn);
+      selectAllBtn.dataset["action"] = "select-all";
+      selectAllBtn.textContent = "Todos";
+      deselectAllBtn = document.createElement("button");
+      deselectAllBtn.type = "button";
+      deselectAllBtn.className = CLS.actionsBtn;
+      deselectAllBtn.classList.add(CLS.deselectAllBtn);
+      deselectAllBtn.dataset["action"] = "deselect-all";
+      deselectAllBtn.textContent = "Limpar";
+      actionsWrap.appendChild(selectAllBtn);
+      actionsWrap.appendChild(deselectAllBtn);
+    }
+    applyBtn = document.createElement("button");
+    applyBtn.type = "button";
+    applyBtn.className = CLS.actionsBtn;
+    applyBtn.classList.add(CLS.applyBtn);
+    applyBtn.dataset["action"] = "apply";
+    applyBtn.textContent = "Aplicar";
+    actionsWrap.appendChild(applyBtn);
     dropdown.appendChild(actionsWrap);
   }
 
@@ -167,6 +184,7 @@ export function buildRoot(cfg: BuildConfig): BuiltRoot {
     actionsWrap,
     selectAllBtn,
     deselectAllBtn,
+    applyBtn,
     list,
     empty,
     triggerId,
@@ -223,6 +241,7 @@ export function setItemContent(el: HTMLDivElement, opt: OptionSnap): void {
   // Avoid innerHTML — keep DOM nodes for safety.
   el.textContent = "";
   const lbl = document.createElement("span");
+  lbl.className = CLS.itemLabel;
   lbl.textContent = opt.label;
   el.appendChild(lbl);
   if (opt.subtext) {

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>SelectPicker — showcase</title>
+  <title>MinSelect — showcase</title>
   <link rel="stylesheet" href="../src/styles/select.css" />
   <style>
     :root {
@@ -41,7 +41,7 @@
       --shadow: 0 6px 18px rgba(20, 30, 50, 0.08);
     }
 
-    /* Re-tema o SelectPicker em dark mode */
+    /* Re-tema o MinSelect em dark mode */
     html[data-theme="dark"] .sl-select {
       --sl-bg: #1b2027;
       --sl-fg: #e6e9ee;
@@ -338,13 +338,13 @@
     <div class="topbar-inner">
       <div class="brand">
         <span class="logo" aria-hidden="true"></span>
-        SelectPicker <small>v1.0.0</small>
+        MinSelect <small>v1.0.1</small>
       </div>
       <div class="spacer"></div>
       <button class="icon-btn" id="themeToggle" aria-label="Alternar tema" title="Alternar tema">
         <span id="themeIcon">☾</span>
       </button>
-      <a class="ghost-btn" href="../src/SelectPicker.ts">Source</a>
+      <a class="ghost-btn" href="../src/MinSelect.ts">Source</a>
     </div>
   </header>
 
@@ -369,7 +369,7 @@
 
     <main>
       <div class="hero">
-        <h1>SelectPicker — showcase interativo</h1>
+        <h1>MinSelect — showcase interativo</h1>
         <p>Uma biblioteca leve em TypeScript para selects ricos: busca com acentos, virtualização, portal, optgroup, e uma API ergonômica. Cada seção abaixo demonstra uma capacidade — abra o <code>&lt;details&gt;</code> em cada exemplo para ver o código fonte.</p>
       </div>
 
@@ -491,14 +491,14 @@
         <details class="code"><summary>JS</summary><pre><code><span class="com">// modifica o &lt;select&gt; nativo e refaz a UI</span>
 hood.innerHTML = <span class="str">""</span>;
 list.forEach(h =&gt; hood.appendChild(opt(h)));
-SelectPicker.get(hood).<span class="kw">refresh</span>();</code></pre></details>
+MinSelect.get(hood).<span class="kw">refresh</span>();</code></pre></details>
       </section>
 
       <!-- 5 -->
       <section class="demo-card" id="s5">
         <header>
           <h2><span class="num">05</span> Multi + actions box + API completa</h2>
-          <p class="desc">Multi-select com botões "selecionar/limpar tudo" (<code>data-actions-box</code>) e formato em contador (<code>data-selected-text-format="count"</code>). Os botões abaixo exercitam toda a API pública.</p>
+          <p class="desc">Multi-select com botões "selecionar/limpar tudo" e <strong>"Aplicar"</strong> (<code>data-actions-box</code>) e formato em contador (<code>data-selected-text-format="count"</code>). O botão Aplicar dispara <code>applied.sl.select</code> com os valores atuais e fecha o dropdown — útil para confirmar a seleção sem reagir a cada clique. Os botões abaixo exercitam toda a API pública.</p>
         </header>
         <div class="demo row">
           <label for="tags">Tags</label>
@@ -528,7 +528,7 @@ SelectPicker.get(hood).<span class="kw">refresh</span>();</code></pre></details>
           <button class="act danger" data-api="destroy">destroy()</button>
           <button class="act" data-api="reinit">re-init</button>
         </div>
-        <details class="code"><summary>JS</summary><pre><code><span class="kw">const</span> picker = SelectPicker.get(el);
+        <details class="code"><summary>JS</summary><pre><code><span class="kw">const</span> picker = MinSelect.get(el);
 picker.<span class="kw">val</span>([<span class="str">"js"</span>, <span class="str">"go"</span>]);     <span class="com">// set</span>
 picker.<span class="kw">val</span>();                  <span class="com">// get → string[]</span>
 picker.<span class="kw">selectAll</span>(); picker.<span class="kw">deselectAll</span>();
@@ -687,8 +687,8 @@ picker.<span class="kw">refresh</span>(); picker.<span class="kw">destroy</span>
         <table class="api">
           <thead><tr><th style="width: 36%">Método</th><th>Descrição</th><th style="width: 90px"></th></tr></thead>
           <tbody>
-            <tr><td>SelectPicker.init(sel)</td><td>Inicializa picker(s) em um selector, elemento ou array.</td><td></td></tr>
-            <tr><td>SelectPicker.get(el)</td><td>Retorna a instância de um elemento.</td><td></td></tr>
+            <tr><td>MinSelect.init(sel)</td><td>Inicializa picker(s) em um selector, elemento ou array.</td><td></td></tr>
+            <tr><td>MinSelect.get(el)</td><td>Retorna a instância de um elemento.</td><td></td></tr>
             <tr><td>.val() / .val(v)</td><td>Lê ou seta o valor (string ou array).</td><td><button class="try" data-api="val:get">Try</button></td></tr>
             <tr><td>.refresh()</td><td>Resincroniza após mudanças no &lt;select&gt; nativo.</td><td><button class="try" data-api="refresh">Try</button></td></tr>
             <tr><td>.show() / .hide() / .toggle()</td><td>Controla a abertura do dropdown.</td><td><button class="try" data-api="toggle">Try</button></td></tr>
@@ -707,6 +707,7 @@ picker.<span class="kw">refresh</span>(); picker.<span class="kw">destroy</span>
             <tr><td>hidden.sl.select</td><td>Após fechar.</td><td></td></tr>
             <tr><td>refreshed.sl.select</td><td>Após refresh().</td><td></td></tr>
             <tr><td>changed.sl.select</td><td>Valor mudou. detail: {clickedIndex, isSelected, previousValue}</td><td></td></tr>
+            <tr><td>applied.sl.select</td><td>Botão "Aplicar" clicado (requer <code>data-actions-box</code>). detail: {value}</td><td></td></tr>
           </tbody>
         </table>
       </section>
@@ -726,7 +727,7 @@ picker.<span class="kw">refresh</span>(); picker.<span class="kw">destroy</span>
   </div>
 
   <script type="module">
-    import { SelectPicker } from "../dist/index.js";
+    import { MinSelect } from "../dist/index.js";
 
     /* ============== Theme toggle ============== */
     const html = document.documentElement;
@@ -762,7 +763,7 @@ picker.<span class="kw">refresh</span>(); picker.<span class="kw">destroy</span>
     });
     document.getElementById("logHead").addEventListener("click", () => logWrap.classList.toggle("collapsed"));
 
-    const EVENTS = ["loaded.sl.select","rendered.sl.select","shown.sl.select","hidden.sl.select","refreshed.sl.select","changed.sl.select"];
+    const EVENTS = ["loaded.sl.select","rendered.sl.select","shown.sl.select","hidden.sl.select","refreshed.sl.select","changed.sl.select","applied.sl.select"];
     function wire(sel) {
       EVENTS.forEach(name => {
         sel.addEventListener(name, (ev) => {
@@ -778,7 +779,7 @@ picker.<span class="kw">refresh</span>(); picker.<span class="kw">destroy</span>
 
     /* ============== Init principal ============== */
     document.querySelectorAll(".selectpicker").forEach(wire);
-    SelectPicker.init(".selectpicker");
+    MinSelect.init(".selectpicker");
 
     /* ============== Section 4 — Cascade ============== */
     const city = document.getElementById("hoodCity");
@@ -804,20 +805,20 @@ picker.<span class="kw">refresh</span>(); picker.<span class="kw">destroy</span>
         o.textContent = h;
         hood.appendChild(o);
       }
-      SelectPicker.get(hood).refresh();
+      MinSelect.get(hood).refresh();
       hoodCount.textContent = list.length;
     }
     city.addEventListener("change", () => rebuildHoods(city.value));
     document.getElementById("resetCascade").addEventListener("click", () => {
       city.value = "";
-      SelectPicker.get(city).refresh();
+      MinSelect.get(city).refresh();
       rebuildHoods("");
     });
 
     /* ============== Section 5 — Multi + API ============== */
     const tags = document.getElementById("tags");
     function callApi(action) {
-      const p = SelectPicker.get(tags);
+      const p = MinSelect.get(tags);
       switch (action) {
         case "val:set": p.val(["js","go"]); break;
         case "val:get": log("tags", "val()", `→ ${JSON.stringify(p.val())}`); break;
@@ -832,8 +833,8 @@ picker.<span class="kw">refresh</span>(); picker.<span class="kw">destroy</span>
           log("tags","destroy()","instância removida");
           break;
         case "reinit":
-          if (!SelectPicker.get(tags)) {
-            SelectPicker.init(tags);
+          if (!MinSelect.get(tags)) {
+            MinSelect.init(tags);
             log("tags","re-init","nova instância");
           } else log("tags","re-init","já ativo");
           break;
@@ -852,7 +853,7 @@ picker.<span class="kw">refresh</span>(); picker.<span class="kw">destroy</span>
       big.appendChild(o);
     }
     const t0 = performance.now();
-    SelectPicker.init(big);
+    MinSelect.init(big);
     document.getElementById("bigInit").textContent = (performance.now() - t0).toFixed(2);
 
     /* ============== Section 9 — Mass init ============== */
@@ -872,7 +873,7 @@ picker.<span class="kw">refresh</span>(); picker.<span class="kw">destroy</span>
       massSelects.push(s);
     }
     const t1 = performance.now();
-    SelectPicker.init(massSelects);
+    MinSelect.init(massSelects);
     const total = performance.now() - t1;
     document.getElementById("massTotal").textContent = total.toFixed(2);
     document.getElementById("massAvg").textContent = (total / 30).toFixed(2);
@@ -891,7 +892,7 @@ picker.<span class="kw">refresh</span>(); picker.<span class="kw">destroy</span>
     const PG_OPTIONS = ["Maçã","Banana","Caju","Damasco","Figo","Goiaba","Manga","Pera","Pêssego","Uva"];
     function rebuildPlayground() {
       const prev = pgMount.querySelector("select");
-      if (prev && SelectPicker.get(prev)) SelectPicker.get(prev).destroy();
+      if (prev && MinSelect.get(prev)) MinSelect.get(prev).destroy();
       pgMount.innerHTML = "";
 
       const sel = document.createElement("select");
@@ -916,7 +917,7 @@ picker.<span class="kw">refresh</span>(); picker.<span class="kw">destroy</span>
       });
       pgMount.appendChild(sel);
       wire(sel);
-      SelectPicker.init(sel);
+      MinSelect.init(sel);
 
       // snippet
       const attrs = [

@@ -95,6 +95,8 @@
   top: calc(100% + 2px);
   left: 0;
   min-width: 100%;
+  width: max-content;
+  max-width: min(360px, 90vw);
   padding: 0.5rem 0;
   background: var(--sl-bg);
   color: var(--sl-fg);
@@ -153,6 +155,7 @@
   font: inherit;
   line-height: 1.5;
   transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out;
+  font-size: 14px;
 }
 
 .sl-actions-btn:hover {
@@ -171,7 +174,7 @@
   max-height: calc(var(--sl-item-h) * var(--sl-size));
   overflow-y: auto;
   padding: 0;
-  contain: strict;
+  contain: content;
 }
 
 .sl-group {
@@ -202,11 +205,12 @@
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  height: var(--sl-item-h);
+  min-height: var(--sl-item-h);
   padding: 0 1.5rem;
   color: var(--sl-fg);
   cursor: pointer;
   line-height: 1.5;
+  white-space: nowrap;
 }
 
 .sl-item:hover:not(.sl-item-disabled) {
@@ -250,10 +254,20 @@
   display: none;
 }
 
+.sl-item-label {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
 .sl-subtext {
+  flex: 0 0 auto;
   color: var(--sl-muted);
   font-size: 0.875em;
   margin-left: 8px;
+  white-space: nowrap;
 }
 
 .sl-item-selected .sl-subtext {
