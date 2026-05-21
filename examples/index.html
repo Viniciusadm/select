@@ -1,0 +1,999 @@
+<!doctype html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SelectPicker — showcase</title>
+  <link rel="stylesheet" href="../src/styles/select.css" />
+  <style>
+    :root {
+      --bg: #0b0d10;
+      --bg-elev: #14181d;
+      --bg-elev-2: #1b2027;
+      --fg: #e6e9ee;
+      --fg-dim: #aab2bd;
+      --muted: #6f7681;
+      --border: #232932;
+      --border-strong: #2f3641;
+      --accent: #7c5cff;
+      --accent-fg: #ffffff;
+      --ok: #4ade80;
+      --warn: #fbbf24;
+      --danger: #f87171;
+      --code-bg: #0e1217;
+      --code-fg: #c7d2dc;
+      --radius: 10px;
+      --shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+    }
+    html[data-theme="light"] {
+      --bg: #f7f8fa;
+      --bg-elev: #ffffff;
+      --bg-elev-2: #f1f3f6;
+      --fg: #1a1f26;
+      --fg-dim: #4a5260;
+      --muted: #7a8290;
+      --border: #e3e7ec;
+      --border-strong: #cfd5dd;
+      --accent: #6b46ff;
+      --accent-fg: #ffffff;
+      --code-bg: #0e1217;
+      --code-fg: #c7d2dc;
+      --shadow: 0 6px 18px rgba(20, 30, 50, 0.08);
+    }
+
+    /* Re-tema o SelectPicker em dark mode */
+    html[data-theme="dark"] .sl-select {
+      --sl-bg: #1b2027;
+      --sl-fg: #e6e9ee;
+      --sl-border: #2f3641;
+      --sl-border-focus: #7c5cff;
+      --sl-focus-ring: rgba(124, 92, 255, 0.25);
+      --sl-muted: #8b94a1;
+      --sl-hover: #232932;
+      --sl-active: #2c333d;
+      --sl-selected-bg: #7c5cff;
+      --sl-selected-fg: #ffffff;
+      --sl-disabled-fg: #555b65;
+      --sl-notify-bg: #14181d;
+      --sl-notify-border: #232932;
+      --sl-menu-shadow: 0 10px 30px rgba(0, 0, 0, 0.55);
+      --sl-radius: 8px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font: 14px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif;
+      color: var(--fg);
+      background: var(--bg);
+      min-height: 100vh;
+      transition: background .2s, color .2s;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* Header */
+    .topbar {
+      position: sticky; top: 0; z-index: 50;
+      background: color-mix(in srgb, var(--bg) 85%, transparent);
+      backdrop-filter: saturate(140%) blur(10px);
+      border-bottom: 1px solid var(--border);
+    }
+    .topbar-inner {
+      max-width: 1080px; margin: 0 auto;
+      padding: 14px 24px;
+      display: flex; align-items: center; gap: 16px;
+    }
+    .brand {
+      font-weight: 700; font-size: 16px; letter-spacing: -0.01em;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .brand .logo {
+      width: 22px; height: 22px; border-radius: 6px;
+      background: conic-gradient(from 210deg, #7c5cff, #22d3ee, #7c5cff);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.15);
+    }
+    .brand small {
+      color: var(--muted); font-weight: 500; margin-left: 6px;
+      padding: 2px 6px; border: 1px solid var(--border); border-radius: 999px;
+      font-size: 11px;
+    }
+    .spacer { flex: 1; }
+    .icon-btn, .ghost-btn {
+      background: transparent; color: var(--fg);
+      border: 1px solid var(--border); border-radius: 8px;
+      padding: 6px 10px; cursor: pointer; font: inherit;
+    }
+    .icon-btn:hover, .ghost-btn:hover { background: var(--bg-elev); }
+
+    /* Layout */
+    .layout {
+      max-width: 1080px; margin: 0 auto;
+      padding: 32px 24px 120px;
+      display: grid; grid-template-columns: 200px 1fr; gap: 40px;
+    }
+    @media (max-width: 860px) {
+      .layout { grid-template-columns: 1fr; padding: 24px 16px 120px; }
+      .toc { display: none; }
+    }
+    .toc {
+      position: sticky; top: 80px; align-self: start;
+      font-size: 13px;
+    }
+    .toc h4 { margin: 0 0 8px; color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; }
+    .toc ol { list-style: none; padding: 0; margin: 0; counter-reset: toc; }
+    .toc li { counter-increment: toc; }
+    .toc a {
+      display: block; padding: 5px 8px; border-radius: 6px;
+      color: var(--fg-dim); margin: 1px 0;
+    }
+    .toc a::before { content: counter(toc, decimal-leading-zero) "  "; color: var(--muted); font-variant-numeric: tabular-nums; }
+    .toc a:hover { background: var(--bg-elev); color: var(--fg); text-decoration: none; }
+
+    /* Hero */
+    .hero {
+      margin-bottom: 32px;
+    }
+    .hero h1 {
+      font-size: 32px; line-height: 1.15; letter-spacing: -0.02em; margin: 0 0 10px;
+    }
+    .hero p {
+      color: var(--fg-dim); margin: 0; max-width: 62ch;
+    }
+
+    /* Cards */
+    section.demo-card {
+      background: var(--bg-elev);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 20px;
+      scroll-margin-top: 80px;
+      box-shadow: var(--shadow);
+    }
+    section.demo-card > header {
+      margin-bottom: 16px;
+    }
+    section.demo-card h2 {
+      margin: 0 0 6px;
+      font-size: 17px; letter-spacing: -0.01em;
+      display: flex; align-items: baseline; gap: 10px;
+    }
+    section.demo-card h2 .num {
+      color: var(--muted); font-variant-numeric: tabular-nums;
+      font-weight: 500; font-size: 13px;
+    }
+    section.demo-card h2 .badge {
+      font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em;
+      background: color-mix(in srgb, var(--accent) 20%, transparent);
+      color: var(--accent); padding: 2px 8px; border-radius: 999px;
+      font-weight: 600;
+    }
+    section.demo-card p.desc {
+      color: var(--fg-dim); margin: 0; max-width: 64ch;
+    }
+    .row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin: 8px 0; }
+    .row label { color: var(--fg-dim); min-width: 120px; }
+    .demo { padding: 12px 0 4px; }
+    select.selectpicker { width: 280px; }
+
+    /* Buttons */
+    button.act {
+      font: inherit; cursor: pointer;
+      padding: 6px 12px; border-radius: 7px;
+      background: var(--bg-elev-2); color: var(--fg);
+      border: 1px solid var(--border-strong);
+      font-size: 12px;
+    }
+    button.act:hover { border-color: var(--accent); }
+    button.act.primary {
+      background: var(--accent); color: var(--accent-fg); border-color: var(--accent);
+    }
+    button.act.primary:hover { filter: brightness(1.1); }
+    button.act.danger { color: var(--danger); border-color: color-mix(in srgb, var(--danger) 40%, var(--border)); }
+
+    /* Code snippet */
+    details.code {
+      margin-top: 14px; border: 1px solid var(--border); border-radius: 8px;
+      background: var(--code-bg);
+    }
+    details.code > summary {
+      cursor: pointer; user-select: none;
+      padding: 8px 12px; font-size: 12px; color: #8b94a1;
+      list-style: none;
+    }
+    details.code > summary::-webkit-details-marker { display: none; }
+    details.code > summary::before { content: "▸ "; transition: transform .15s; display: inline-block; }
+    details.code[open] > summary::before { content: "▾ "; }
+    details.code pre {
+      margin: 0; padding: 0 14px 14px;
+      color: var(--code-fg);
+      font: 12px/1.55 ui-monospace, SFMono-Regular, Menlo, monospace;
+      overflow-x: auto;
+    }
+    .tag { color: #e879f9; }
+    .attr { color: #7dd3fc; }
+    .str { color: #86efac; }
+    .com { color: #6b7280; }
+    .kw { color: #f0abfc; }
+
+    /* Modal demo */
+    .trapped-modal {
+      margin-top: 12px; height: 140px; overflow: hidden;
+      border: 2px dashed var(--warn);
+      padding: 12px; position: relative; border-radius: 8px;
+      background: color-mix(in srgb, var(--warn) 8%, transparent);
+    }
+    .trapped-modal::before {
+      content: "overflow: hidden";
+      position: absolute; top: 6px; right: 10px;
+      font: 11px ui-monospace, monospace; color: var(--warn);
+      opacity: 0.8;
+    }
+
+    /* Playground */
+    .pg-grid {
+      display: grid; grid-template-columns: minmax(0,1fr) 240px; gap: 20px;
+      align-items: start;
+    }
+    @media (max-width: 720px) { .pg-grid { grid-template-columns: 1fr; } }
+    .pg-controls {
+      padding: 14px; background: var(--bg-elev-2);
+      border: 1px solid var(--border); border-radius: 8px;
+      font-size: 13px;
+    }
+    .pg-controls .ctrl { margin-bottom: 10px; }
+    .pg-controls label.flag { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+    .pg-controls input[type=range] { width: 100%; }
+    .pg-controls h5 { margin: 0 0 10px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+    .pg-controls .seg { display: flex; gap: 4px; }
+    .pg-controls .seg button {
+      flex: 1; padding: 4px 8px; font-size: 11px;
+      background: var(--bg-elev); border: 1px solid var(--border);
+      border-radius: 6px; color: var(--fg-dim); cursor: pointer;
+    }
+    .pg-controls .seg button[aria-pressed="true"] {
+      background: var(--accent); color: var(--accent-fg); border-color: var(--accent);
+    }
+
+    /* Theming swatches */
+    .theme-swatches { display: flex; gap: 10px; flex-wrap: wrap; margin: 8px 0 12px; }
+    .swatch {
+      cursor: pointer; padding: 10px 14px; border-radius: 8px;
+      border: 1px solid var(--border); background: var(--bg-elev-2);
+      display: flex; flex-direction: column; gap: 6px;
+      font-size: 12px; min-width: 110px; text-align: left;
+      color: var(--fg);
+    }
+    .swatch:hover { border-color: var(--accent); }
+    .swatch[aria-pressed="true"] { border-color: var(--accent); box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 35%, transparent); }
+    .swatch .dots { display: flex; gap: 4px; }
+    .swatch .dot { width: 14px; height: 14px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); }
+
+    /* API table */
+    table.api {
+      width: 100%; border-collapse: collapse; font-size: 13px;
+      font-family: ui-monospace, monospace;
+    }
+    table.api th, table.api td {
+      padding: 8px 10px; border-bottom: 1px solid var(--border);
+      text-align: left; vertical-align: top;
+    }
+    table.api th { color: var(--muted); font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; }
+    table.api td:first-child { color: var(--accent); white-space: nowrap; }
+    table.api td .try {
+      font: inherit; cursor: pointer; color: var(--fg-dim);
+      background: transparent; border: 1px solid var(--border); border-radius: 5px;
+      padding: 2px 8px;
+    }
+    table.api td .try:hover { color: var(--fg); border-color: var(--accent); }
+
+    /* Metrics chip */
+    .metric {
+      display: inline-flex; align-items: center; gap: 6px;
+      font: 12px ui-monospace, monospace;
+      background: var(--bg-elev-2); border: 1px solid var(--border);
+      padding: 3px 8px; border-radius: 6px;
+      color: var(--fg-dim);
+    }
+    .metric strong { color: var(--fg); font-weight: 600; }
+    .metric.ok strong { color: var(--ok); }
+
+    /* Log */
+    .log-wrap {
+      position: fixed; bottom: 16px; right: 16px;
+      width: 360px; max-width: calc(100vw - 32px);
+      background: var(--bg-elev); border: 1px solid var(--border-strong);
+      border-radius: 10px; box-shadow: var(--shadow);
+      z-index: 80; overflow: hidden;
+      transition: transform .2s ease;
+    }
+    .log-wrap.collapsed { transform: translateY(calc(100% - 36px)); }
+    .log-head {
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 12px; font-size: 12px; cursor: pointer;
+      background: var(--bg-elev-2); border-bottom: 1px solid var(--border);
+    }
+    .log-head .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); }
+    .log-head .count { color: var(--muted); margin-left: auto; font-variant-numeric: tabular-nums; }
+    .log-head button {
+      background: transparent; border: none; color: var(--muted); cursor: pointer;
+      font: inherit; padding: 2px 6px; border-radius: 4px;
+    }
+    .log-head button:hover { background: var(--bg-elev); color: var(--fg); }
+    .log {
+      font: 11.5px/1.5 ui-monospace, monospace;
+      background: var(--code-bg); color: var(--code-fg);
+      padding: 10px 12px;
+      max-height: 220px; min-height: 80px;
+      overflow: auto; white-space: pre-wrap; word-break: break-word;
+    }
+    .log .ev { color: #7dd3fc; }
+    .log .id { color: #fbbf24; }
+    .log .meta { color: #6b7280; }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <span class="logo" aria-hidden="true"></span>
+        SelectPicker <small>v1.0.0</small>
+      </div>
+      <div class="spacer"></div>
+      <button class="icon-btn" id="themeToggle" aria-label="Alternar tema" title="Alternar tema">
+        <span id="themeIcon">☾</span>
+      </button>
+      <a class="ghost-btn" href="../src/SelectPicker.ts">Source</a>
+    </div>
+  </header>
+
+  <div class="layout">
+    <nav class="toc" aria-label="Índice">
+      <h4>Showcase</h4>
+      <ol>
+        <li><a href="#s1">Live search + acentos</a></li>
+        <li><a href="#s2">Optgroup &amp; disabled</a></li>
+        <li><a href="#s3">Subtext &amp; tokens</a></li>
+        <li><a href="#s4">Cascade dinâmico</a></li>
+        <li><a href="#s5">Multi + API completa</a></li>
+        <li><a href="#s6">Virtualização (800)</a></li>
+        <li><a href="#s7">Portal mode</a></li>
+        <li><a href="#s8">Form reset</a></li>
+        <li><a href="#s9">Mass init</a></li>
+        <li><a href="#s10">Playground</a></li>
+        <li><a href="#s11">Theming</a></li>
+        <li><a href="#s12">API reference</a></li>
+      </ol>
+    </nav>
+
+    <main>
+      <div class="hero">
+        <h1>SelectPicker — showcase interativo</h1>
+        <p>Uma biblioteca leve em TypeScript para selects ricos: busca com acentos, virtualização, portal, optgroup, e uma API ergonômica. Cada seção abaixo demonstra uma capacidade — abra o <code>&lt;details&gt;</code> em cada exemplo para ver o código fonte.</p>
+      </div>
+
+      <!-- 1 -->
+      <section class="demo-card" id="s1">
+        <header>
+          <h2><span class="num">01</span> Live search com acentos</h2>
+          <p class="desc">Busca normaliza diacríticos automaticamente — digite <code>sao</code> e <em>São Paulo</em> aparece. Atalho de teclado: comece a digitar com o select fechado para type-ahead.</p>
+        </header>
+        <div class="demo row">
+          <label for="city">Cidade</label>
+          <select id="city" class="selectpicker" data-live-search="true" data-live-search-placeholder="Buscar cidade…">
+            <option value="">Selecione…</option>
+            <option value="sp">São Paulo</option>
+            <option value="rj">Rio de Janeiro</option>
+            <option value="bh">Belo Horizonte</option>
+            <option value="poa">Porto Alegre</option>
+            <option value="cwb">Curitiba</option>
+            <option value="ssa">Salvador</option>
+            <option value="for">Fortaleza</option>
+            <option value="bsb">Brasília</option>
+          </select>
+        </div>
+        <details class="code"><summary>HTML</summary><pre><code><span class="tag">&lt;select</span> <span class="attr">class</span>=<span class="str">"selectpicker"</span>
+        <span class="attr">data-live-search</span>=<span class="str">"true"</span>
+        <span class="attr">data-live-search-placeholder</span>=<span class="str">"Buscar cidade…"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;option</span> <span class="attr">value</span>=<span class="str">"sp"</span><span class="tag">&gt;</span>São Paulo<span class="tag">&lt;/option&gt;</span>
+  …
+<span class="tag">&lt;/select&gt;</span></code></pre></details>
+      </section>
+
+      <!-- 2 -->
+      <section class="demo-card" id="s2">
+        <header>
+          <h2><span class="num">02</span> Optgroup &amp; disabled <span class="badge">novo</span></h2>
+          <p class="desc">Suporte nativo a <code>&lt;optgroup&gt;</code> com cabeçalhos e a <code>&lt;option disabled&gt;</code> — opções desabilitadas são puladas pela navegação de teclado.</p>
+        </header>
+        <div class="demo row">
+          <label for="lang">Linguagem</label>
+          <select id="lang" class="selectpicker" data-live-search="true">
+            <option value="">Selecione…</option>
+            <optgroup label="Funcionais">
+              <option value="hs">Haskell</option>
+              <option value="ex">Elixir</option>
+              <option value="cl">Clojure</option>
+              <option value="ocaml" disabled>OCaml (em breve)</option>
+            </optgroup>
+            <optgroup label="Orientadas a objetos">
+              <option value="rb">Ruby</option>
+              <option value="py">Python</option>
+              <option value="kt">Kotlin</option>
+              <option value="smalltalk" disabled>Smalltalk</option>
+            </optgroup>
+            <optgroup label="Sistemas">
+              <option value="rs">Rust</option>
+              <option value="go">Go</option>
+              <option value="zig">Zig</option>
+              <option value="c">C</option>
+            </optgroup>
+          </select>
+        </div>
+        <details class="code"><summary>HTML</summary><pre><code><span class="tag">&lt;optgroup</span> <span class="attr">label</span>=<span class="str">"Funcionais"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;option</span> <span class="attr">value</span>=<span class="str">"hs"</span><span class="tag">&gt;</span>Haskell<span class="tag">&lt;/option&gt;</span>
+  <span class="tag">&lt;option</span> <span class="attr">value</span>=<span class="str">"ocaml"</span> <span class="attr">disabled</span><span class="tag">&gt;</span>OCaml (em breve)<span class="tag">&lt;/option&gt;</span>
+<span class="tag">&lt;/optgroup&gt;</span></code></pre></details>
+      </section>
+
+      <!-- 3 -->
+      <section class="demo-card" id="s3">
+        <header>
+          <h2><span class="num">03</span> Subtext &amp; tokens <span class="badge">novo</span></h2>
+          <p class="desc">Cada opção pode ter texto secundário (<code>data-subtext</code>) e palavras-chave extras de busca (<code>data-tokens</code>) que casam sem aparecer no rótulo. Tente buscar por <em>sampa</em>, <em>carioca</em> ou <em>capital</em>.</p>
+        </header>
+        <div class="demo row">
+          <label for="cityTok">Capital</label>
+          <select id="cityTok" class="selectpicker" data-live-search="true">
+            <option value="">Selecione…</option>
+            <option value="sp" data-subtext="São Paulo / BR" data-tokens="sampa paulistano capital">São Paulo</option>
+            <option value="rj" data-subtext="Rio de Janeiro / BR" data-tokens="carioca capital cidademaravilhosa">Rio de Janeiro</option>
+            <option value="bsb" data-subtext="Distrito Federal / BR" data-tokens="brasiliense capital">Brasília</option>
+            <option value="bue" data-subtext="Buenos Aires / AR" data-tokens="porteño capital argentina">Buenos Aires</option>
+            <option value="mvd" data-subtext="Montevidéu / UY" data-tokens="capital uruguai">Montevidéu</option>
+          </select>
+        </div>
+        <details class="code"><summary>HTML</summary><pre><code><span class="tag">&lt;option</span> <span class="attr">value</span>=<span class="str">"sp"</span>
+        <span class="attr">data-subtext</span>=<span class="str">"São Paulo / BR"</span>
+        <span class="attr">data-tokens</span>=<span class="str">"sampa paulistano capital"</span><span class="tag">&gt;</span>
+  São Paulo
+<span class="tag">&lt;/option&gt;</span></code></pre></details>
+      </section>
+
+      <!-- 4 -->
+      <section class="demo-card" id="s4">
+        <header>
+          <h2><span class="num">04</span> Cascade dinâmico (city → bairro)</h2>
+          <p class="desc">Modifique o <code>&lt;select&gt;</code> nativo e chame <code>refresh()</code> — o picker re-sincroniza sem perder o estado de busca/foco.</p>
+        </header>
+        <div class="demo">
+          <div class="row">
+            <label for="hoodCity">Cidade</label>
+            <select id="hoodCity" class="selectpicker" data-live-search="true">
+              <option value="">Selecione…</option>
+              <option value="sp">São Paulo</option>
+              <option value="rj">Rio de Janeiro</option>
+              <option value="bh">Belo Horizonte</option>
+              <option value="poa">Porto Alegre</option>
+              <option value="cwb">Curitiba</option>
+            </select>
+          </div>
+          <div class="row">
+            <label for="hood">Bairro</label>
+            <select id="hood" class="selectpicker" data-live-search="true">
+              <option value="">— escolha uma cidade —</option>
+            </select>
+            <span class="metric" id="hoodCount"><strong>0</strong> bairros</span>
+            <button class="act" id="resetCascade">Resetar</button>
+          </div>
+        </div>
+        <details class="code"><summary>JS</summary><pre><code><span class="com">// modifica o &lt;select&gt; nativo e refaz a UI</span>
+hood.innerHTML = <span class="str">""</span>;
+list.forEach(h =&gt; hood.appendChild(opt(h)));
+SelectPicker.get(hood).<span class="kw">refresh</span>();</code></pre></details>
+      </section>
+
+      <!-- 5 -->
+      <section class="demo-card" id="s5">
+        <header>
+          <h2><span class="num">05</span> Multi + actions box + API completa</h2>
+          <p class="desc">Multi-select com botões "selecionar/limpar tudo" (<code>data-actions-box</code>) e formato em contador (<code>data-selected-text-format="count"</code>). Os botões abaixo exercitam toda a API pública.</p>
+        </header>
+        <div class="demo row">
+          <label for="tags">Tags</label>
+          <select id="tags" class="selectpicker" multiple
+                  data-actions-box="true" data-selected-text-format="count" data-size="8">
+            <option value="js">JavaScript</option>
+            <option value="ts">TypeScript</option>
+            <option value="go">Go</option>
+            <option value="rs">Rust</option>
+            <option value="py">Python</option>
+            <option value="rb">Ruby</option>
+            <option value="ex">Elixir</option>
+            <option value="hs">Haskell</option>
+            <option value="cl">Clojure</option>
+            <option value="kt">Kotlin</option>
+          </select>
+        </div>
+        <div class="row">
+          <button class="act primary" data-api="val:set">val(['js','go'])</button>
+          <button class="act" data-api="val:get">val()</button>
+          <button class="act" data-api="selectAll">selectAll()</button>
+          <button class="act" data-api="deselectAll">deselectAll()</button>
+          <button class="act" data-api="show">show()</button>
+          <button class="act" data-api="hide">hide()</button>
+          <button class="act" data-api="toggle">toggle()</button>
+          <button class="act" data-api="refresh">refresh()</button>
+          <button class="act danger" data-api="destroy">destroy()</button>
+          <button class="act" data-api="reinit">re-init</button>
+        </div>
+        <details class="code"><summary>JS</summary><pre><code><span class="kw">const</span> picker = SelectPicker.get(el);
+picker.<span class="kw">val</span>([<span class="str">"js"</span>, <span class="str">"go"</span>]);     <span class="com">// set</span>
+picker.<span class="kw">val</span>();                  <span class="com">// get → string[]</span>
+picker.<span class="kw">selectAll</span>(); picker.<span class="kw">deselectAll</span>();
+picker.<span class="kw">show</span>(); picker.<span class="kw">hide</span>(); picker.<span class="kw">toggle</span>();
+picker.<span class="kw">refresh</span>(); picker.<span class="kw">destroy</span>();</code></pre></details>
+      </section>
+
+      <!-- 6 -->
+      <section class="demo-card" id="s6">
+        <header>
+          <h2><span class="num">06</span> Virtualização — 800 opções</h2>
+          <p class="desc">Acima de 200 itens, apenas a janela visível é renderizada. Init é O(1) em DOM independente do tamanho da lista.</p>
+        </header>
+        <div class="demo row">
+          <label for="big">Big list</label>
+          <select id="big" class="selectpicker" data-live-search="true" data-size="10"></select>
+          <span class="metric ok"><strong id="bigInit">—</strong> ms init</span>
+          <span class="metric"><strong id="bigCount">800</strong> itens</span>
+        </div>
+      </section>
+
+      <!-- 7 -->
+      <section class="demo-card" id="s7">
+        <header>
+          <h2><span class="num">07</span> Portal mode</h2>
+          <p class="desc">O container abaixo tem <code>overflow: hidden</code> e altura fixa. Com <code>data-portal="true"</code>, o dropdown é renderizado em <code>document.body</code> e escapa o clipping.</p>
+        </header>
+        <div class="trapped-modal">
+          <div class="row">
+            <label for="modalSel">Em container</label>
+            <select id="modalSel" class="selectpicker" data-portal="true" data-live-search="true">
+              <option value="a">Alfa</option>
+              <option value="b">Bravo</option>
+              <option value="c">Charlie</option>
+              <option value="d">Delta</option>
+              <option value="e">Echo</option>
+              <option value="f">Foxtrot</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <!-- 8 -->
+      <section class="demo-card" id="s8">
+        <header>
+          <h2><span class="num">08</span> Form reset</h2>
+          <p class="desc">O picker escuta o evento <code>reset</code> do form e sincroniza o estado automaticamente.</p>
+        </header>
+        <form id="theForm" class="demo">
+          <div class="row">
+            <label for="r1">Preferência</label>
+            <select id="r1" class="selectpicker">
+              <option value="">—</option>
+              <option value="x">X</option>
+              <option value="y">Y</option>
+              <option value="z" selected>Z (default)</option>
+            </select>
+            <button class="act" type="reset">Reset form</button>
+          </div>
+        </form>
+      </section>
+
+      <!-- 9 -->
+      <section class="demo-card" id="s9">
+        <header>
+          <h2><span class="num">09</span> Mass init — 30 instâncias</h2>
+          <p class="desc">Custo agregado de inicializar muitos selects em batch.</p>
+        </header>
+        <div class="demo">
+          <div class="row" id="mass"></div>
+          <div class="row">
+            <span class="metric ok"><strong id="massTotal">—</strong> ms total</span>
+            <span class="metric"><strong id="massAvg">—</strong> ms/instância</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- 10 -->
+      <section class="demo-card" id="s10">
+        <header>
+          <h2><span class="num">10</span> Playground <span class="badge">interativo</span></h2>
+          <p class="desc">Mude as opções e veja o picker re-inicializar instantaneamente.</p>
+        </header>
+        <div class="pg-grid">
+          <div class="demo">
+            <div class="row">
+              <label for="pgSel">Playground</label>
+              <span id="pgMount"></span>
+            </div>
+            <details class="code" open><summary>HTML gerado</summary><pre><code id="pgCode"></code></pre></details>
+          </div>
+          <aside class="pg-controls">
+            <h5>Atributos</h5>
+            <div class="ctrl"><label class="flag"><input type="checkbox" id="pgMultiple"> multiple</label></div>
+            <div class="ctrl"><label class="flag"><input type="checkbox" id="pgSearch" checked> data-live-search</label></div>
+            <div class="ctrl"><label class="flag"><input type="checkbox" id="pgActions"> data-actions-box</label></div>
+            <div class="ctrl"><label class="flag"><input type="checkbox" id="pgPortal"> data-portal</label></div>
+            <div class="ctrl">
+              <label class="flag" for="pgSize">data-size: <strong id="pgSizeVal">10</strong></label>
+              <input type="range" id="pgSize" min="3" max="20" value="10">
+            </div>
+            <div class="ctrl">
+              <h5>selected-text-format</h5>
+              <div class="seg" id="pgFormat">
+                <button data-v="" aria-pressed="true">labels</button>
+                <button data-v="count">count</button>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <!-- 11 -->
+      <section class="demo-card" id="s11">
+        <header>
+          <h2><span class="num">11</span> Theming via CSS variables</h2>
+          <p class="desc">A biblioteca expõe ~17 variáveis <code>--sl-*</code>. Os presets abaixo trocam um subconjunto delas em tempo real.</p>
+        </header>
+        <div class="theme-swatches" id="themePresets">
+          <button class="swatch" data-preset="default" aria-pressed="true">
+            <div class="dots"><span class="dot" style="background:#7c5cff"></span><span class="dot" style="background:#1b2027"></span></div>
+            Default
+          </button>
+          <button class="swatch" data-preset="rose">
+            <div class="dots"><span class="dot" style="background:#ec4899"></span><span class="dot" style="background:#1f1218"></span></div>
+            Rose accent
+          </button>
+          <button class="swatch" data-preset="forest">
+            <div class="dots"><span class="dot" style="background:#22c55e"></span><span class="dot" style="background:#0f1a13"></span></div>
+            Forest
+          </button>
+          <button class="swatch" data-preset="compact">
+            <div class="dots"><span class="dot" style="background:#7c5cff"></span><span class="dot" style="background:#0e1217"></span></div>
+            Compact
+          </button>
+        </div>
+        <div class="demo row">
+          <label for="themed">Themed</label>
+          <select id="themed" class="selectpicker" data-live-search="true">
+            <option value="">Selecione…</option>
+            <option value="1">Opção uma</option>
+            <option value="2">Opção dois</option>
+            <option value="3">Opção três</option>
+            <option value="4">Opção quatro</option>
+            <option value="5">Opção cinco</option>
+          </select>
+        </div>
+      </section>
+
+      <!-- 12 -->
+      <section class="demo-card" id="s12">
+        <header>
+          <h2><span class="num">12</span> API &amp; eventos</h2>
+          <p class="desc">Métodos públicos e eventos disparados. Clique em <em>Try</em> para acionar em <code>#tags</code> (seção 5) e observe o log no canto inferior.</p>
+        </header>
+        <table class="api">
+          <thead><tr><th style="width: 36%">Método</th><th>Descrição</th><th style="width: 90px"></th></tr></thead>
+          <tbody>
+            <tr><td>SelectPicker.init(sel)</td><td>Inicializa picker(s) em um selector, elemento ou array.</td><td></td></tr>
+            <tr><td>SelectPicker.get(el)</td><td>Retorna a instância de um elemento.</td><td></td></tr>
+            <tr><td>.val() / .val(v)</td><td>Lê ou seta o valor (string ou array).</td><td><button class="try" data-api="val:get">Try</button></td></tr>
+            <tr><td>.refresh()</td><td>Resincroniza após mudanças no &lt;select&gt; nativo.</td><td><button class="try" data-api="refresh">Try</button></td></tr>
+            <tr><td>.show() / .hide() / .toggle()</td><td>Controla a abertura do dropdown.</td><td><button class="try" data-api="toggle">Try</button></td></tr>
+            <tr><td>.selectAll() / .deselectAll()</td><td>Apenas em multi-select.</td><td><button class="try" data-api="selectAll">Try</button></td></tr>
+            <tr><td>.destroy()</td><td>Remove a UI e devolve o &lt;select&gt; nativo.</td><td></td></tr>
+          </tbody>
+        </table>
+        <table class="api" style="margin-top: 16px">
+          <thead><tr><th style="width: 36%">Evento</th><th>Quando dispara</th><th></th></tr></thead>
+          <tbody>
+            <tr><td>loaded.sl.select</td><td>Após init de uma instância.</td><td></td></tr>
+            <tr><td>rendered.sl.select</td><td>DOM da lista construído pela primeira vez.</td><td></td></tr>
+            <tr><td>show.sl.select</td><td>Antes de abrir (cancelável via preventDefault).</td><td></td></tr>
+            <tr><td>shown.sl.select</td><td>Após abrir.</td><td></td></tr>
+            <tr><td>hide.sl.select</td><td>Antes de fechar (cancelável).</td><td></td></tr>
+            <tr><td>hidden.sl.select</td><td>Após fechar.</td><td></td></tr>
+            <tr><td>refreshed.sl.select</td><td>Após refresh().</td><td></td></tr>
+            <tr><td>changed.sl.select</td><td>Valor mudou. detail: {clickedIndex, isSelected, previousValue}</td><td></td></tr>
+          </tbody>
+        </table>
+      </section>
+    </main>
+  </div>
+
+  <!-- Log flutuante -->
+  <div class="log-wrap" id="logWrap">
+    <div class="log-head" id="logHead">
+      <span class="dot"></span>
+      <span>Event log</span>
+      <span class="count"><span id="logCount">0</span> eventos</span>
+      <button id="logClear" title="Limpar">clear</button>
+      <button id="logToggle" title="Recolher">▾</button>
+    </div>
+    <div class="log" id="log"></div>
+  </div>
+
+  <script type="module">
+    import { SelectPicker } from "../dist/index.js";
+
+    /* ============== Theme toggle ============== */
+    const html = document.documentElement;
+    const themeBtn = document.getElementById("themeToggle");
+    const themeIcon = document.getElementById("themeIcon");
+    const savedTheme = localStorage.getItem("sp-theme");
+    if (savedTheme) html.setAttribute("data-theme", savedTheme);
+    function syncIcon() { themeIcon.textContent = html.getAttribute("data-theme") === "light" ? "☀" : "☾"; }
+    syncIcon();
+    themeBtn.addEventListener("click", () => {
+      const next = html.getAttribute("data-theme") === "light" ? "dark" : "light";
+      html.setAttribute("data-theme", next);
+      localStorage.setItem("sp-theme", next);
+      syncIcon();
+    });
+
+    /* ============== Event log ============== */
+    const logEl = document.getElementById("log");
+    const logCountEl = document.getElementById("logCount");
+    const logWrap = document.getElementById("logWrap");
+    let logCount = 0;
+    function log(id, ev, meta) {
+      logCount++;
+      logCountEl.textContent = logCount;
+      const line = document.createElement("div");
+      line.innerHTML = `<span class="id">#${id || "—"}</span> <span class="ev">${ev}</span>${meta ? ` <span class="meta">${meta}</span>` : ""}`;
+      logEl.appendChild(line);
+      logEl.scrollTop = logEl.scrollHeight;
+    }
+    document.getElementById("logClear").addEventListener("click", (e) => {
+      e.stopPropagation();
+      logEl.innerHTML = ""; logCount = 0; logCountEl.textContent = 0;
+    });
+    document.getElementById("logHead").addEventListener("click", () => logWrap.classList.toggle("collapsed"));
+
+    const EVENTS = ["loaded.sl.select","rendered.sl.select","shown.sl.select","hidden.sl.select","refreshed.sl.select","changed.sl.select"];
+    function wire(sel) {
+      EVENTS.forEach(name => {
+        sel.addEventListener(name, (ev) => {
+          const meta = ev.detail ? JSON.stringify(ev.detail) : "";
+          log(sel.id || "(noid)", name.replace(".sl.select",""), meta);
+        });
+      });
+      sel.addEventListener("change", () => {
+        const v = sel.multiple ? Array.from(sel.selectedOptions).map(o=>o.value) : sel.value;
+        log(sel.id || "(noid)", "change", `value=${JSON.stringify(v)}`);
+      });
+    }
+
+    /* ============== Init principal ============== */
+    document.querySelectorAll(".selectpicker").forEach(wire);
+    SelectPicker.init(".selectpicker");
+
+    /* ============== Section 4 — Cascade ============== */
+    const city = document.getElementById("hoodCity");
+    const hood = document.getElementById("hood");
+    const hoodCount = document.getElementById("hoodCount").querySelector("strong");
+    const hoods = {
+      sp: ["Pinheiros","Vila Mariana","Moema","Tatuapé","Bela Vista","Itaim","Brooklin"],
+      rj: ["Copacabana","Ipanema","Botafogo","Tijuca","Leblon"],
+      bh: ["Savassi","Lourdes","Funcionários","Pampulha"],
+      poa: ["Moinhos","Cidade Baixa","Bom Fim"],
+      cwb: ["Batel","Centro","Água Verde","Bigorrilho"],
+    };
+    function rebuildHoods(c) {
+      const list = hoods[c] || [];
+      hood.innerHTML = "";
+      const placeholder = document.createElement("option");
+      placeholder.value = "";
+      placeholder.textContent = list.length ? "Selecione…" : "— escolha uma cidade —";
+      hood.appendChild(placeholder);
+      for (const h of list) {
+        const o = document.createElement("option");
+        o.value = h.toLowerCase().replace(/\s/g,"-");
+        o.textContent = h;
+        hood.appendChild(o);
+      }
+      SelectPicker.get(hood).refresh();
+      hoodCount.textContent = list.length;
+    }
+    city.addEventListener("change", () => rebuildHoods(city.value));
+    document.getElementById("resetCascade").addEventListener("click", () => {
+      city.value = "";
+      SelectPicker.get(city).refresh();
+      rebuildHoods("");
+    });
+
+    /* ============== Section 5 — Multi + API ============== */
+    const tags = document.getElementById("tags");
+    function callApi(action) {
+      const p = SelectPicker.get(tags);
+      switch (action) {
+        case "val:set": p.val(["js","go"]); break;
+        case "val:get": log("tags", "val()", `→ ${JSON.stringify(p.val())}`); break;
+        case "selectAll": p.selectAll(); break;
+        case "deselectAll": p.deselectAll(); break;
+        case "show": p.show(); break;
+        case "hide": p.hide(); break;
+        case "toggle": p.toggle(); break;
+        case "refresh": p.refresh(); break;
+        case "destroy":
+          p.destroy();
+          log("tags","destroy()","instância removida");
+          break;
+        case "reinit":
+          if (!SelectPicker.get(tags)) {
+            SelectPicker.init(tags);
+            log("tags","re-init","nova instância");
+          } else log("tags","re-init","já ativo");
+          break;
+      }
+    }
+    document.querySelectorAll("[data-api]").forEach(btn => {
+      btn.addEventListener("click", () => callApi(btn.dataset.api));
+    });
+
+    /* ============== Section 6 — Virtualização 800 ============== */
+    const big = document.getElementById("big");
+    for (let i = 0; i < 800; i++) {
+      const o = document.createElement("option");
+      o.value = `v${i}`;
+      o.textContent = `Item ${String(i).padStart(4,"0")}`;
+      big.appendChild(o);
+    }
+    const t0 = performance.now();
+    SelectPicker.init(big);
+    document.getElementById("bigInit").textContent = (performance.now() - t0).toFixed(2);
+
+    /* ============== Section 9 — Mass init ============== */
+    const mass = document.getElementById("mass");
+    const massSelects = [];
+    for (let n = 0; n < 30; n++) {
+      const s = document.createElement("select");
+      s.className = "selectpicker";
+      s.style.width = "110px";
+      for (let i = 0; i < 20; i++) {
+        const o = document.createElement("option");
+        o.value = `${n}-${i}`;
+        o.textContent = `S${n} opt ${i}`;
+        s.appendChild(o);
+      }
+      mass.appendChild(s);
+      massSelects.push(s);
+    }
+    const t1 = performance.now();
+    SelectPicker.init(massSelects);
+    const total = performance.now() - t1;
+    document.getElementById("massTotal").textContent = total.toFixed(2);
+    document.getElementById("massAvg").textContent = (total / 30).toFixed(2);
+
+    /* ============== Section 10 — Playground ============== */
+    const pgMount = document.getElementById("pgMount");
+    const pgCode = document.getElementById("pgCode");
+    const pgState = {
+      multiple: false,
+      search: true,
+      actions: false,
+      portal: false,
+      size: 10,
+      format: "",
+    };
+    const PG_OPTIONS = ["Maçã","Banana","Caju","Damasco","Figo","Goiaba","Manga","Pera","Pêssego","Uva"];
+    function rebuildPlayground() {
+      const prev = pgMount.querySelector("select");
+      if (prev && SelectPicker.get(prev)) SelectPicker.get(prev).destroy();
+      pgMount.innerHTML = "";
+
+      const sel = document.createElement("select");
+      sel.id = "pg";
+      sel.className = "selectpicker";
+      if (pgState.multiple) sel.multiple = true;
+      if (pgState.search) sel.dataset.liveSearch = "true";
+      if (pgState.actions) sel.dataset.actionsBox = "true";
+      if (pgState.portal) sel.dataset.portal = "true";
+      sel.dataset.size = String(pgState.size);
+      if (pgState.format) sel.dataset.selectedTextFormat = pgState.format;
+      if (!pgState.multiple) {
+        const ph = document.createElement("option");
+        ph.value = ""; ph.textContent = "Selecione…";
+        sel.appendChild(ph);
+      }
+      PG_OPTIONS.forEach((label, i) => {
+        const o = document.createElement("option");
+        o.value = `fruit-${i}`;
+        o.textContent = label;
+        sel.appendChild(o);
+      });
+      pgMount.appendChild(sel);
+      wire(sel);
+      SelectPicker.init(sel);
+
+      // snippet
+      const attrs = [
+        `class="selectpicker"`,
+        pgState.multiple ? "multiple" : null,
+        pgState.search ? `data-live-search="true"` : null,
+        pgState.actions ? `data-actions-box="true"` : null,
+        pgState.portal ? `data-portal="true"` : null,
+        `data-size="${pgState.size}"`,
+        pgState.format ? `data-selected-text-format="${pgState.format}"` : null,
+      ].filter(Boolean).join("\n        ");
+      pgCode.textContent = `<select ${attrs}>\n  …\n</select>`;
+    }
+    document.getElementById("pgMultiple").addEventListener("change", e => { pgState.multiple = e.target.checked; rebuildPlayground(); });
+    document.getElementById("pgSearch").addEventListener("change", e => { pgState.search = e.target.checked; rebuildPlayground(); });
+    document.getElementById("pgActions").addEventListener("change", e => { pgState.actions = e.target.checked; rebuildPlayground(); });
+    document.getElementById("pgPortal").addEventListener("change", e => { pgState.portal = e.target.checked; rebuildPlayground(); });
+    const pgSize = document.getElementById("pgSize");
+    pgSize.addEventListener("input", e => {
+      pgState.size = +e.target.value;
+      document.getElementById("pgSizeVal").textContent = pgState.size;
+      rebuildPlayground();
+    });
+    document.querySelectorAll("#pgFormat button").forEach(b => {
+      b.addEventListener("click", () => {
+        document.querySelectorAll("#pgFormat button").forEach(x => x.setAttribute("aria-pressed","false"));
+        b.setAttribute("aria-pressed","true");
+        pgState.format = b.dataset.v;
+        rebuildPlayground();
+      });
+    });
+    rebuildPlayground();
+
+    /* ============== Section 11 — Theming ============== */
+    const themed = document.getElementById("themed");
+    const PRESETS = {
+      default: {},
+      rose: {
+        "--sl-selected-bg": "#ec4899",
+        "--sl-border-focus": "#ec4899",
+        "--sl-focus-ring": "rgba(236, 72, 153, 0.25)",
+        "--sl-radius": "12px",
+      },
+      forest: {
+        "--sl-selected-bg": "#22c55e",
+        "--sl-border-focus": "#22c55e",
+        "--sl-focus-ring": "rgba(34, 197, 94, 0.25)",
+        "--sl-radius": "4px",
+      },
+      compact: {
+        "--sl-item-h": "22px",
+        "--sl-radius": "4px",
+        "--sl-selected-bg": "#7c5cff",
+      },
+    };
+    function applyPreset(name) {
+      const wrap = themed.closest(".sl-select") || themed.parentElement;
+      // limpa qualquer override anterior
+      ["--sl-selected-bg","--sl-border-focus","--sl-focus-ring","--sl-radius","--sl-item-h"]
+        .forEach(v => wrap.style.removeProperty(v));
+      const preset = PRESETS[name] || {};
+      Object.entries(preset).forEach(([k,v]) => wrap.style.setProperty(k, v));
+    }
+    document.querySelectorAll("#themePresets .swatch").forEach(s => {
+      s.addEventListener("click", () => {
+        document.querySelectorAll("#themePresets .swatch").forEach(x => x.setAttribute("aria-pressed","false"));
+        s.setAttribute("aria-pressed","true");
+        applyPreset(s.dataset.preset);
+      });
+    });
+
+    /* ============== Section 12 — Try buttons ============== */
+    document.querySelectorAll(".api .try").forEach(btn => {
+      btn.addEventListener("click", () => callApi(btn.dataset.api));
+    });
+
+    log("system", "ready", `${document.querySelectorAll(".selectpicker").length} selects inicializados`);
+  </script>
+</body>
+</html>
